@@ -50,7 +50,6 @@ class ApplicationView{
         this.j(videoElement).prop('muted', true); // Mute local video
     }
 
-
     public appendUserData(videoElement:any, data:any):void{
         var clientData;
         var serverData;

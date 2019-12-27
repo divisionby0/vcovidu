@@ -1,160 +1,130 @@
 <html>
 
 <head>
-	<title>openvidu-js-node</title>
+    <title>openvidu-js-node</title>
 
-	<meta name="viewport" content="width=device-width, initial-scale=1" charset="utf-8">
-	<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="utf-8">
+    <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
 
-	<!-- Bootstrap -->
-	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-	<!-- Bootstrap -->
+    <!-- Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Bootstrap -->
 
-	<link rel="styleSheet" href="style.css" type="text/css" media="screen">
-
-	<script type="application/javascript" src="openvidu-browser-2.11.0.js"></script>
-	<script type="application/javascript" src="js/lib/socket.io.js"></script>
-
-	<script type="application/javascript" src="config.js"></script>
-	<script type="application/javascript" src="js/lib/collections/Map.js"></script>
-	<script type="application/javascript" src="js/lib/collections/List.js"></script>
-	<script type="application/javascript" src="js/lib/collections/iterators/ListIterator.js"></script>
-	<script type="application/javascript" src="js/lib/collections/iterators/MapIterator.js"></script>
-	<script type="application/javascript" src="js/lib/events/EventBus.js"></script>
-
-	<script src="js/div0/service/socket/SocketEvent.js"></script>
-	<script src="js/div0/service/BaseHttpRequest.js"></script>
-	<script src="js/div0/service/HttpPostRequest.js"></script>
-	<script src="js/div0/service/Service.js"></script>
-	<script src="js/div0/service/socket/SocketService.js"></script>
-
-	<script type="application/javascript" src="js/div0/user/User.js"></script>
-	<script type="application/javascript" src="js/div0/user/Publisher.js"></script>
-	<script type="application/javascript" src="js/div0/user/Subscriber.js"></script>
-
-	<script type="application/javascript" src="js/div0/service/Service.js"></script>
-	<script type="application/javascript" src="js/div0/textChat/TextChatMessageRenderer.js"></script>
-	<script type="application/javascript" src="js/div0/textChat/TextChatView.js"></script>
-	<script type="application/javascript" src="js/div0/textChat/TextChatModel.js"></script>
-	<script type="application/javascript" src="js/div0/textChat/TextChatController.js"></script>
-
-	<script src="js/div0/application/AppEvent.js"></script>
-	<script src="js/div0/application/ApplicationView.js"></script>
-	<script src="js/div0/application/ApplicationModel.js"></script>
-	<script src="js/div0/application/ApplicationController.js"></script>
-	<script src="js/div0/Application.js"></script>
-
-	<script src="app.js"></script>
-
-	<script>
-		$(document).ready(function () {
-			$('[data-toggle="tooltip"]').tooltip({
-				html: true
-			});
-		});
-	</script>
+    <link rel="styleSheet" href="style.css" type="text/css" media="screen">
+    <script src="openvidu-browser-2.11.0.js"></script>
+    <script src="testApp.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip({
+                html: true
+            });
+        });
+    </script>
 </head>
 
 <body>
-	<div id="main-container" class="container">
-		<div id="not-logged" class="vertical-center">
-			<div id="img-div"><img src="images/openvidu_grey_bg_transp_cropped.png" /></div>
-			<form class="form-group jumbotron" onsubmit="return false">
-				<p>
-					<label>User</label><input class="form-control" type="text" id="user" required>
-				</p>
-				<p>
-					<label>Pass</label><input class="form-control" type="password" id="pass" required>
-				</p>
-				<p class="text-center">
-					<button id="loginButton" class="btn btn-lg btn-info" onclick="logIn()">Log in</button>
-				</p>
-			</form>
-			<table class="table">
-				<tr>
-					<th>User</th>
-					<th>Pass</th>
-					<th>Role<i data-toggle="tooltip" data-placement="bottom" title="" data-original-title="<div id='tooltip-div'>PUBLISHER<div>Send and receive media<hr></div>SUBSCRIBER<div>Receive media</div></div>"
-						    class="glyphicon glyphicon-info-sign"></i></th>
-				</tr>
-				<tr>
-					<td>publisher1</td>
-					<td>pass</td>
-					<td>PUBLISHER</td>
-				</tr>
-				<tr>
-					<td>publisher2</td>
-					<td>pass</td>
-					<td>PUBLISHER</td>
-				</tr>
-				<tr>
-					<td>subscriber</td>
-					<td>pass</td>
-					<td>SUBSCRIBER</td>
-				</tr>
-			</table>
-		</div>
 
-		<div id="logged" hidden>
-			<div id="join" class="vertical-center">
-				<div id="img-div"><img src="images/openvidu_grey_bg_transp_cropped.png" /></div>
-				<div id="join-dialog" class="jumbotron">
-					<h1>Join a video session</h1>
-					<form class="form-group" onsubmit="return false">
-						<p>
-							<label>Ваше имя</label>
-							<input class="form-control" type="text" id="nickName" required>
-						</p>
-						<p>
-							<label>Session</label>
-							<input class="form-control" type="text" id="sessionName" required>
-						</p>
-						<p class="text-center">
-							<button class="btn btn-lg btn-success" onclick="joinSession()">Join!</button>
-						</p>
-					</form>
-					<hr>
-					<div id="login-info">
-						<div>Logged as <span id="name-user"></span></div>
-						<button id="logoutBtn" class="btn btn-warning">Log out</button>
-					</div>
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/"><img class="demo-logo" src="images/openvidu_vert_white_bg_trans_cropped.png"/> JS Node</a>
+            <a class="navbar-brand nav-icon" href="https://github.com/OpenVidu/openvidu-tutorials/tree/master/openvidu-js-node" title="GitHub Repository"
+               target="_blank"><i class="fa fa-github" aria-hidden="true"></i></a>
+            <a class="navbar-brand nav-icon" href="http://www.openvidu.io/docs/tutorials/openvidu-js-node/" title="Documentation" target="_blank"><i class="fa fa-book" aria-hidden="true"></i></a>
+        </div>
+    </div>
+</nav>
 
-				</div>
-			</div>
+<div id="main-container" class="container">
+    <div id="not-logged" class="vertical-center">
+        <div id="img-div"><img src="images/openvidu_grey_bg_transp_cropped.png" /></div>
+        <form class="form-group jumbotron" onsubmit="return false">
+            <p>
+                <label>User</label><input class="form-control" type="text" id="user" required>
+            </p>
+            <p>
+                <label>Pass</label><input class="form-control" type="password" id="pass" required>
+            </p>
+            <p class="text-center">
+                <button class="btn btn-lg btn-info" onclick="logIn()">Log in</button>
+            </p>
+        </form>
+        <table class="table">
+            <tr>
+                <th>User</th>
+                <th>Pass</th>
+                <th>Role<i data-toggle="tooltip" data-placement="bottom" title="" data-original-title="<div id='tooltip-div'>PUBLISHER<div>Send and receive media<hr></div>SUBSCRIBER<div>Receive media</div></div>"
+                           class="glyphicon glyphicon-info-sign"></i></th>
+            </tr>
+            <tr>
+                <td>publisher1</td>
+                <td>pass</td>
+                <td>PUBLISHER</td>
+            </tr>
+            <tr>
+                <td>publisher2</td>
+                <td>pass</td>
+                <td>PUBLISHER</td>
+            </tr>
+            <tr>
+                <td>subscriber</td>
+                <td>pass</td>
+                <td>SUBSCRIBER</td>
+            </tr>
+        </table>
+    </div>
 
-			<div id="session" style="display: none;">
+    <div id="logged" hidden>
+        <div id="join" class="vertical-center">
+            <div id="img-div"><img src="images/openvidu_grey_bg_transp_cropped.png" /></div>
+            <div id="join-dialog" class="jumbotron">
+                <h1>Join a video session</h1>
+                <form class="form-group" onsubmit="return false">
+                    <p>
+                        <label>Participant</label>
+                        <input class="form-control" type="text" id="nickName" required>
+                    </p>
+                    <p>
+                        <label>Session</label>
+                        <input class="form-control" type="text" id="sessionName" required>
+                    </p>
+                    <p class="text-center">
+                        <button class="btn btn-lg btn-success" onclick="joinSession()">Join!</button>
+                    </p>
+                </form>
+                <hr>
+                <div id="login-info">
+                    <div>Logged as <span id="name-user"></span></div>
+                    <button id="logout-btn" class="btn btn-warning" onclick="logOut()">Log out</button>
+                </div>
+            </div>
+        </div>
 
-				<div id="session-header">
-					<h1 id="session-title"></h1>
-					<input class="btn btn-large btn-danger" type="button" id="buttonLeaveSession" onmouseup="removeUser(); leaveSession()" value="Leave session">
-				</div>
-				<div id="main-video" class="col-md-6">
-					<p class="nickName"></p>
-					<p class="userName"></p>
-					<video autoplay playsinline="true"></video>
-				</div>
-				<div id="video-container" class="col-md-6"></div>
-				<div style="float:left; display:block; height: 200px; background-color: yellow; overflow-y: scroll; overflow-x: hidden;">
-					<div class="container">
-						<div id="textChatMessagesList" class="col-12"></div>
-					</div>
-				</div>
-				<div class="row">
-					<div class="container">
-						<div class="col-8">
-							<input id="textMessageInput" type="text" style="width: 100%;">
-						</div>
-						<div class="col-4">
-							<button id="sendTextMessageButton" type="button" class="btn btn-primary">Send message</button>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+        <div id="session" style="display: none;">
+            <div id="session-header">
+                <h1 id="session-title"></h1>
+                <input class="btn btn-large btn-danger" type="button" id="buttonLeaveSession" onmouseup="removeUser(); leaveSession()" value="Leave session">
+            </div>
+            <div id="main-video" class="col-md-6">
+                <p class="nickName"></p>
+                <p class="userName"></p>
+                <video autoplay playsinline="true"></video>
+            </div>
+            <div id="video-container" class="col-md-6"></div>
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="container">
+        <div class="text-muted">OpenVidu © 2017</div>
+        <a href="http://www.openvidu.io/" target="_blank"><img class="openvidu-logo" src="images/openvidu_globe_bg_transp_cropped.png"/></a>
+    </div>
+</footer>
+
 </body>
 
 </html>
