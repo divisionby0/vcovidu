@@ -1,4 +1,4 @@
-var ver = "0.1.7";
+var ver = "0.1.8";
 var OpenVidu = require('openvidu-node-client').OpenVidu;
 var Session = require('openvidu-node-client').Session;
 var OpenViduRole = require('openvidu-node-client').OpenViduRole;
