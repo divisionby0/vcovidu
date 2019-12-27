@@ -3,11 +3,18 @@ var session;
 
 var sessionName;	// Name of the video session the user will connect to
 var token;			// Token retrieved from OpenVidu Server
+var userName;
+var role;
+var resolution = "800x600";
 
 
 /* OPENVIDU METHODS */
+function joinSession(_userName, _userRole, _sessionToConnect) {
+    console.log("joinSession");
+    userName = _userName;
+    role = _userRole;
+    sessionName = _sessionToConnect;
 
-function joinSession() {
     getToken((token) => {
         console.log("getToken()");
         // --- 1) Get an OpenVidu object ---
@@ -50,23 +57,22 @@ function joinSession() {
         // --- 4) Connect to the session passing the retrieved token and some more data from
         //        the client (in this case a JSON with the nickname chosen by the user) ---
 
-        var nickName = $("#nickName").val();
+        var nickName = userName;
         session.connect(token, { clientData: nickName })
             .then(() => {
 
                 // --- 5) Set page layout for active call ---
 
-                var userName = $("#user").val();
                 $('#session-title').text(sessionName);
-                $('#join').hide();
-                $('#session').show();
-
 
                 // Here we check somehow if the user has 'PUBLISHER' role before
                 // trying to publish its stream. Even if someone modified the client's code and
                 // published the stream, it wouldn't work if the token sent in Session.connect
                 // method is not recognized as 'PUBLIHSER' role by OpenVidu Server
-                if (isPublisher(userName)) {
+
+                var isPublisher = role=="PUBLISHER";
+
+                if (isPublisher==true) {
 
                     // --- 6) Get your own camera stream ---
 
@@ -75,7 +81,7 @@ function joinSession() {
                         videoSource: undefined, // The source of video. If undefined default webcam
                         publishAudio: true,  	// Whether you want to start publishing with your audio unmuted or not
                         publishVideo: true,  	// Whether you want to start publishing with your video enabled or not
-                        resolution: '640x480',  // The resolution of your video
+                        resolution: resolution,  // The resolution of your video
                         frameRate: 30,			// The frame rate of your video
                         insertMode: 'APPEND',	// How the video is inserted in the target element 'video-container'
                         mirror: false       	// Whether to mirror your local video or not
@@ -122,17 +128,12 @@ function leaveSession() {
 
     // Removing all HTML elements with the user's nicknames
     cleanSessionView();
-
-    $('#join').show();
-    $('#session').hide();
 }
 
 /* OPENVIDU METHODS */
 
 
-
 /* APPLICATION REST METHODS */
-
 function logIn() {
     var user = $("#user").val(); // Username
     var pass = $("#pass").val(); // Password
@@ -165,11 +166,10 @@ function logOut() {
 }
 
 function getToken(callback) {
-    sessionName = $("#sessionName").val(); // Video-call chosen by the user
-
+    console.log("getToken");
     httpPostRequest(
         'api-sessions/get-token',
-        {sessionName: sessionName},
+        {sessionName: sessionName, userName:userName, role:role},
         'Request of TOKEN gone WRONG:',
         (response) => {
             if(response!=undefined && response!=null){
@@ -228,7 +228,7 @@ window.onbeforeunload = () => { // Gracefully leave session
         leaveSession();
     }
     logOut();
-}
+};
 
 function appendUserData(videoElement, connection) {
     var clientData;
@@ -243,11 +243,13 @@ function appendUserData(videoElement, connection) {
         serverData = JSON.parse(connection.data.split('%/%')[1]).serverData;
         nodeId = connection.connectionId;
     }
+
     var dataNode = document.createElement('div');
     dataNode.className = "data-node";
     dataNode.id = "data-" + nodeId;
     dataNode.innerHTML = "<p class='nickName'>" + clientData + "</p><p class='userName'>" + serverData + "</p>";
     videoElement.parentNode.insertBefore(dataNode, videoElement.nextSibling);
+
     addClickListener(videoElement, clientData, serverData);
 }
 

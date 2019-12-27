@@ -109,82 +109,80 @@ app.post('/api-login/logout', function (req, res) {
 
 // Get token (add new user to session)
 app.post('/api-sessions/get-token', function (req, res) {
-    if (!isLogged(req.session)) {
-        req.session.destroy();
-        res.status(401).send('User not logged');
+    // The video-call to connect
+    var sessionName = req.body.sessionName;
+    var role = req.body.role;
+
+    // Role associated to this user
+    //var role = users.find(u => (u.user === req.session.loggedUser)).role;
+
+    // Optional data to be passed to other users when this user connects to the video-call
+    // In this case, a JSON with the value we stored in the req.session object on login
+    var serverData = JSON.stringify({ serverData: req.session.loggedUser });
+
+    console.log("Getting a token | {sessionName}={" + sessionName + "}");
+
+    // Build tokenOptions object with the serverData and the role
+    var tokenOptions = {
+        data: serverData,
+        role: role
+    };
+
+    if (mapSessions[sessionName]) {
+        // Session already exists
+        console.log('Existing session ' + sessionName);
+
+        // Get the existing Session from the collection
+        var mySession = mapSessions[sessionName];
+
+        console.log("mySession=",mySession);
+
+        // Generate a new token asynchronously with the recently created tokenOptions
+        mySession.generateToken(tokenOptions)
+            .then(token => {
+
+                // Store the new token in the collection of tokens
+                mapSessionNamesTokens[sessionName].push(token);
+                console.log("sending token ",token);
+                // Return the token to the client
+                res.status(200).send({
+                    0: token
+                });
+            })
+            .catch(error => {
+                console.error(error);
+            });
     } else {
-        // The video-call to connect
-        var sessionName = req.body.sessionName;
+        // New session
+        console.log('New session ' + sessionName);
 
-        // Role associated to this user
-        var role = users.find(u => (u.user === req.session.loggedUser)).role;
+        // Create a new OpenVidu Session asynchronously
+        OV.createSession()
+            .then(session => {
+                // Store the new Session in the collection of Sessions
+                mapSessions[sessionName] = session;
+                // Store a new empty array in the collection of tokens
+                mapSessionNamesTokens[sessionName] = [];
 
-        // Optional data to be passed to other users when this user connects to the video-call
-        // In this case, a JSON with the value we stored in the req.session object on login
-        var serverData = JSON.stringify({ serverData: req.session.loggedUser });
+                // Generate a new token asynchronously with the recently created tokenOptions
+                session.generateToken(tokenOptions)
+                    .then(token => {
 
-        console.log("Getting a token | {sessionName}={" + sessionName + "}");
-
-        // Build tokenOptions object with the serverData and the role
-        var tokenOptions = {
-            data: serverData,
-            role: role
-        };
-
-        if (mapSessions[sessionName]) {
-            // Session already exists
-            console.log('Existing session ' + sessionName);
-
-            // Get the existing Session from the collection
-            var mySession = mapSessions[sessionName];
-
-            // Generate a new token asynchronously with the recently created tokenOptions
-            mySession.generateToken(tokenOptions)
-                .then(token => {
-
-                    // Store the new token in the collection of tokens
-                    mapSessionNamesTokens[sessionName].push(token);
-                    console.log("sending token ",token);
-                    // Return the token to the client
-                    res.status(200).send({
-                        0: token
-                    });
-                })
-                .catch(error => {
-                    console.error(error);
-                });
-        } else {
-            // New session
-            console.log('New session ' + sessionName);
-
-            // Create a new OpenVidu Session asynchronously
-            OV.createSession()
-                .then(session => {
-                    // Store the new Session in the collection of Sessions
-                    mapSessions[sessionName] = session;
-                    // Store a new empty array in the collection of tokens
-                    mapSessionNamesTokens[sessionName] = [];
-
-                    // Generate a new token asynchronously with the recently created tokenOptions
-                    session.generateToken(tokenOptions)
-                        .then(token => {
-
-                            // Store the new token in the collection of tokens
-                            mapSessionNamesTokens[sessionName].push(token);
-                            console.log("sending token ",token);
-                            // Return the Token to the client
-                            res.status(200).send({
-                                0: token
-                            });
-                        })
-                        .catch(error => {
-                            console.error(error);
+                        // Store the new token in the collection of tokens
+                        mapSessionNamesTokens[sessionName].push(token);
+                        console.log("sending token ",token);
+                        // Return the Token to the client
+                        res.status(200).send({
+                            0: token
                         });
-                })
-                .catch(error => {
-                    console.error(error);
-                });
-        }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
+            })
+            .catch(error => {
+                console.error(error);
+            });
     }
 });
 
