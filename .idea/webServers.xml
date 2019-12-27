@@ -3,7 +3,7 @@
   <component name="WebServers">
     <option name="servers">
       <webServer id="1ebb8c70-98bb-4b08-966d-a0c0122529b4" name="customer_s" url="http://94.130.37.77">
-        <fileTransfer host="94.130.37.77" port="22" rootFolder="/openvidu-tutorials/openvidu-js-node" accessType="SFTP" username="illia">
+        <fileTransfer host="94.130.37.77" port="22" rootFolder="/openvidu-tutorials/openvidu-js-node" accessType="SFTP" password="dfdbdfebdf9cdfdfdfccdfd3dfe1dfec" username="illia">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" />
           </advancedOptions>
