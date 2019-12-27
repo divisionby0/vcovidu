@@ -1,0 +1,36 @@
+getToken()
+creating new OpenVidu...
+'OpenVidu' initialized
+openvidu-browser version: 2.11.0
+OV= OpenVidu {publishers: Array(0), secret: "", recorder: false, advancedConfiguration: {…}, webrtcStatsInterval: 0, …}
+TURN temp credentials [JHQSDE:v4mv1z]
+openvidu-server version: 2.11.0
+'Connection' created (local)
+Event 'videoElementCreated' triggered by 'Publisher' VideoElementEvent {hasBeenPrevented: false, cancelable: false, target: Publisher, type: "videoElementCreated", element: video#local-video-undefined}
+Your local 'Stream' with id [undefined] video is now playing
+'Publisher' successfully published to session
+
+
+
+   ---  SUBSCRIBER  --- 
+getToken()
+creating new OpenVidu...
+'OpenVidu' initialized
+openvidu-browser version: 2.11.0
+OV= OpenVidu {publishers: Array(0), secret: "", recorder: false, advancedConfiguration: {…}, webrtcStatsInterval: 0, …}
+TURN temp credentials [USZY0W:6fnrgr]
+openvidu-server version: 2.11.0
+Connecting websocket to URI: wss://94.130.37.77:4443/openvidu
+WebSocket connected to wss://94.130.37.77:4443/openvidu
+--------- ONCONNECTED -----------
+Starting ping (if configured)
+Sending request: {method:"joinRoom", params: {"token":"wss://94.130.37.77:4443?sessionId=umls06k23sutqjc5&token=7ugxobpjgjlqsnkx&role=SUBSCRIBER&version=2.11.0&turnUsername=USZY0W&turnCredential=6fnrgr","session":"umls06k23sutqjc5","platform":"Chrome 79.0.3945.88 on Windows 10 64-bit","metadata":"{\"clientData\":\"Participant 87\"}","secret":"","recorder":false}}
+Request: method:joinRoom params:{"token":"wss://94.130.37.77:4443?sessionId=umls06k23sutqjc5&token=7ugxobpjgjlqsnkx&role=SUBSCRIBER&version=2.11.0&turnUsername=USZY0W&turnCredential=6fnrgr","session":"umls06k23sutqjc5","platform":"Chrome 79.0.3945.88 on Windows 10 64-bit","metadata":"{\"clientData\":\"Participant 87\"}","secret":"","recorder":false}
+Response: {"id":"mr6k7fdxsrustqjp","createdAt":1577430805463,"metadata":"{\"clientData\":\"Participant 87\"}%/%{\"serverData\":\"subscriber\"}","value":[{"id":"tsdwur2niqpfvf0x","createdAt":1577430756190,"metadata":"{\"clientData\":\"Participant 43\"}%/%{\"serverData\":\"publisher1\"}","streams":[{"id":"tsdwur2niqpfvf0x_CAMERA_EKCQP","createdAt":1577430758286,"hasAudio":true,"hasVideo":true,"videoActive":true,"audioActive":true,"typeOfVideo":"CAMERA","frameRate":30,"videoDimensions":"{\"width\":640,\"height\":480}","filter":{}}]}],"sessionId":"o6gkovgej752innspf31emtm5k"}
+'Connection' created (local)
+Remote 'Connection' with 'connectionId' [tsdwur2niqpfvf0x] is now configured for receiving Streams with options:  {id: "tsdwur2niqpfvf0x_CAMERA_EKCQP", createdAt: 1577430758286, connection: Connection, hasAudio: true, hasVideo: true, …}
+'Connection' created (remote) with 'connectionId' [tsdwur2niqpfvf0x]
+Event 'streamCreated' triggered by 'Session' StreamEvent {hasBeenPrevented: false, cancelable: false, target: Session, type: "streamCreated", stream: Stream, …}
+Subscribing to tsdwur2niqpfvf0x
+'Session.subscribe(Stream)' called. Constraints of generate SDP offer {audio: true, video: true}
+RTCPeerConnection constraints: {"offerToReceiveAudio":true,"offerToReceiveVideo":true}

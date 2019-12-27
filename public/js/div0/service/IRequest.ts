@@ -1,0 +1,3 @@
+interface IRequest{
+    execute():void;
+}

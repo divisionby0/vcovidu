@@ -1,0 +1,21 @@
+{
+  "name": "openvidu-js-node",
+  "version": "2.11.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "ng test"
+  },
+  "author": "openvidu@gmail.com",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://"
+  },
+  "homepage": "https://",
+  "dependencies": {
+    "body-parser": "1.18.3",
+    "express": "4.16.4",
+    "express-session": "1.16.1",
+    "openvidu-node-client": "^2.11.0"
+  }
+}
