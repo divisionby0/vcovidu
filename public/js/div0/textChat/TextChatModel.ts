@@ -1,9 +1,19 @@
 ///<reference path="TextChatView.ts"/>
+///<reference path="TextChatService.ts"/>
 class TextChatModel{
     private view:TextChatView;
+    private session:any;
+    private service:TextChatService;
 
-    constructor(view:TextChatView){
+    constructor(view:TextChatView, session:string){
         this.view = view;
+        this.session = session;
+        console.log("TextChatModel session=",session);
+        this.service = new TextChatService(this.session);
+    }
+
+    public sendMessage(message:string):void{
+        this.service.sendTextChatMessage(message);
     }
 
     public onNewMessage(data:any):void{
@@ -18,7 +28,6 @@ class TextChatModel{
         var serverData:any;
         var strings:string[] = fromString.split(",");
         clientData = JSON.parse(strings[0]).clientData;
-        //serverData = JSON.parse(strings[1]).serverData;
 
         return {clientData:clientData, message:data.message};
     }

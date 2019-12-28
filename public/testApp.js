@@ -18,21 +18,17 @@ function joinSession(_userName, _role, _sessionToConnect) {
 
         session = OV.initSession();
 
-        // On every new Stream received...
         session.on('streamCreated', (event) => {
             $("#video-container").empty();
 
             var subscriber = session.subscribe(event.stream, 'video-container');
 
-            // When the HTML video has been appended to DOM...
             subscriber.on('videoElementCreated', (event) => {
                 appendUserData(event.element, subscriber.stream.connection);
             });
         });
 
-        // On every Stream destroyed...
         session.on('streamDestroyed', (event) => {
-            // Delete the HTML element with the user's name and nickname
             console.log("STREAM DESTROYED");
             removeUserData(event.stream.connection);
         });
@@ -44,35 +40,34 @@ function joinSession(_userName, _role, _sessionToConnect) {
                 $('#session-title').text(sessionName);
 
                 var isPublisher = role=="PUBLISHER";
+
                 if (isPublisher==true) {
 
-                    // --- 6) Get your own camera stream ---
                     var publisher = OV.initPublisher('video-container', {
-                        audioSource: undefined, // The source of audio. If undefined default microphone
-                        videoSource: undefined, // The source of video. If undefined default webcam
-                        publishAudio: true,  	// Whether you want to start publishing with your audio unmuted or not
-                        publishVideo: true,  	// Whether you want to start publishing with your video enabled or not
-                        resolution: '640x480',  // The resolution of your video
-                        frameRate: 30,			// The frame rate of your video
-                        insertMode: 'APPEND',	// How the video is inserted in the target element 'video-container'
-                        mirror: true       	// Whether to mirror your local video or not
+                        audioSource: undefined,
+                        videoSource: undefined,
+                        publishAudio: true,
+                        publishVideo: true,
+                        resolution: '640x480',
+                        frameRate: 30,
+                        insertMode: 'APPEND',
+                        mirror: true
                     });
 
-                    // --- 7) Specify the actions when events take place in our publisher ---
-
-                    // When our HTML video has been added to DOM...
                     publisher.on('videoElementCreated', (event) => {
                         var userData = {
                             nickName: nickName,
                             userName: userName
                         };
+
                         initMainVideo(event.element, userData);
                         appendUserData(event.element, userData);
-                        $(event.element).prop('muted', true); // Mute local video
+
+                        $(event.element).prop('muted', true);
                     });
 
-                    // --- 8) Publish your stream ---
                     session.publish(publisher);
+
                 } else {
                     console.warn('You don\'t have permissions to publish');
                     initMainVideoThumbnail(); // Show SUBSCRIBER message in main video
@@ -81,21 +76,27 @@ function joinSession(_userName, _role, _sessionToConnect) {
             .catch(error => {
                 console.warn('There was an error connecting to the session:', error.code, error.message);
             });
+
+        createTextChat(session);
     });
 
     return false;
 }
 
 function leaveSession() {
-    // --- 9) Leave the session by calling 'disconnect' method over the Session object ---
     session.disconnect();
     session = null;
-
-    // Removing all HTML elements with the user's nicknames
     cleanSessionView();
 }
 /* OPENVIDU METHODS */
 
+
+var createTextChat = function (session) {
+    console.log("createTextChat session=",session);
+    var view = new TextChatView($);
+    var model = new TextChatModel(view, session);
+    new TextChatController(model);
+};
 
 /* APPLICATION REST METHODS */
 function logOut() {
@@ -162,7 +163,6 @@ function httpPostRequest(url, body, errorMsg, callback) {
 
 
 /* APPLICATION BROWSER METHODS */
-
 window.onbeforeunload = () => { // Gracefully leave session
     if (session) {
         removeUser();

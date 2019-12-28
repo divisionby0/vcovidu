@@ -1,8 +1,15 @@
 ///<reference path="TextChatView.ts"/>
+///<reference path="TextChatService.ts"/>
 var TextChatModel = (function () {
-    function TextChatModel(view) {
+    function TextChatModel(view, session) {
         this.view = view;
+        this.session = session;
+        console.log("TextChatModel session=", session);
+        this.service = new TextChatService(this.session);
     }
+    TextChatModel.prototype.sendMessage = function (message) {
+        this.service.sendTextChatMessage(message);
+    };
     TextChatModel.prototype.onNewMessage = function (data) {
         var message = this.parseMessage(data);
         this.view.addMessage(message);
@@ -14,7 +21,6 @@ var TextChatModel = (function () {
         var serverData;
         var strings = fromString.split(",");
         clientData = JSON.parse(strings[0]).clientData;
-        //serverData = JSON.parse(strings[1]).serverData;
         return { clientData: clientData, message: data.message };
     };
     return TextChatModel;

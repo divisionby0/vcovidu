@@ -1,7 +1,7 @@
 ///<reference path="ApplicationView.ts"/>
 ///<reference path="../user/Subscriber.ts"/>
 ///<reference path="../user/Publisher.ts"/>
-///<reference path="../service/Service.ts"/>
+///<reference path="../textChat/Service.ts"/>
 ///<reference path="../service/socket/SocketService.ts"/>
 declare function isPublisher(value:string):boolean;
 declare function createOpenVidu():any;
@@ -11,7 +11,7 @@ class ApplicationModel{
     private ver:string = "0.0.2";
 
     private view:ApplicationView;
-    private service:Service;
+    private service:TextChatService;
     private socketService:SocketService;
     private socketServiceURL:string;
     private OV:any;
@@ -84,13 +84,15 @@ class ApplicationModel{
     }
 
     private createService(session:any = null):void {
-        this.service = new Service(session);
-        EventBus.addEventListener(Service.STREAM_CREATED, (data)=>this.onStreamCreated(data));
-        EventBus.addEventListener(Service.STREAM_DESTROYED, (data)=>this.onStreamDestroyed(data));
-        EventBus.addEventListener(Service.ON_LOG_OUT,(response)=>this.onLogOut(response));
-        EventBus.addEventListener(Service.LOGIN_RESPONSE,(data)=>this.onLogInResponse(data));
-        EventBus.addEventListener(Service.GET_TOKEN_RESPONSE,(response)=>this.getTokenResponse(response));
-        EventBus.addEventListener(Service.REMOVE_USER_RESPONSE, (response)=>this.onRemoveUserResponse(response));
+        /*
+        this.service = new TextChatService(session);
+        EventBus.addEventListener(TextChatService.STREAM_CREATED, (data)=>this.onStreamCreated(data));
+        EventBus.addEventListener(TextChatService.STREAM_DESTROYED, (data)=>this.onStreamDestroyed(data));
+        EventBus.addEventListener(TextChatService.ON_LOG_OUT,(response)=>this.onLogOut(response));
+        EventBus.addEventListener(TextChatService.LOGIN_RESPONSE,(data)=>this.onLogInResponse(data));
+        EventBus.addEventListener(TextChatService.GET_TOKEN_RESPONSE,(response)=>this.getTokenResponse(response));
+        EventBus.addEventListener(TextChatService.REMOVE_USER_RESPONSE, (response)=>this.onRemoveUserResponse(response));
+        */
     }
 
     private onStreamCreated(data:any):void {
@@ -156,7 +158,7 @@ class ApplicationModel{
     }
     private getTokenResponse(response:any):void{
         this.token = response[0];
-        //EventBus.removeEventListener(Service.GET_TOKEN_RESPONSE,this.getTokenResponse(response));
+        //EventBus.removeEventListener(TextChatService.GET_TOKEN_RESPONSE,this.getTokenResponse(response));
         this.joinRequest();
     }
     private createSessionName():void{

@@ -355,6 +355,12 @@ video{
 	-webkit-transform:rotateY(180deg); /* Safari and Chrome */
 	-moz-transform:rotateY(180deg); /* Firefox */
 }
+#textMessageInput{
+	box-sizing: border-box;
+	width: 100%;
+	padding: 10px;
+}
+
 /* xs ans md screen resolutions*/
 
 @media screen and (max-width: 991px) {

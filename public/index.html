@@ -15,6 +15,17 @@
 
     <link rel="styleSheet" href="style.css" type="text/css" media="screen">
     <script src="openvidu-browser-2.11.0.js"></script>
+
+    <script src="js/lib/collections/collections.js"></script>
+    <script src="js/lib/events/EventBus.js"></script>
+
+    <script src="js/div0/textChat/TextChatEvent.js"></script>
+    <script src="js/div0/textChat/TextChatService.js"></script>
+    <script src="js/div0/textChat/TextChatView.js"></script>
+    <script src="js/div0/textChat/TextChatMessageRenderer.js"></script>
+    <script src="js/div0/textChat/TextChatModel.js"></script>
+    <script src="js/div0/textChat/TextChatController.js"></script>
+
     <script src="testApp.js"></script>
     <script>
         $(document).ready(function () {
@@ -43,6 +54,17 @@
                     <input class="btn btn-large btn-danger" type="button" id="buttonLeaveSession" onmouseup="removeUser(); leaveSession()" value="Leave session">
                 </div>
                 <div id="video-container" class="col-md-6"></div>
+            </div>
+            <div style="width: 100%; display: block; float: left;">
+                <div id="textMessagesContainer" style="width: 100%; height: 240px; display: block; float: left; overflow-y: scroll; overflow-x:hidden; background-color: yellow;">
+
+                </div>
+                <div style="display: block;float: left; width: 80%;">
+                    <input id="textMessageInput" class="form-control" type="text" width="100%">
+                </div>
+                <div style="display: block;float: left; width: 20%;">
+                    <button id="sendTextMessageButton" type="button" class="btn btn-primary">Send</button>
+                </div>
             </div>
         </div>
     </div>

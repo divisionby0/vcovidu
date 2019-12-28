@@ -565,7 +565,7 @@ var normalice = require('normalice');
   To get it into the list, feel free to either open a pull request or if you
   find that process a bit daunting then just create an issue requesting
   the addition of the server (make sure you provide all the details, and if
-  you have a Terms of Service then including that in the PR/issue would be
+  you have a Terms of TextChatService then including that in the PR/issue would be
   awesome).
 
   ## I know of a free server, can I add it?

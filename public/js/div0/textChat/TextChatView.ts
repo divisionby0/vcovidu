@@ -1,5 +1,6 @@
 ///<reference path="../../lib/events/EventBus.ts"/>
 ///<reference path="TextChatMessageRenderer.ts"/>
+///<reference path="TextChatEvent.ts"/>
 class TextChatView{
     private $j:any;
 
@@ -10,7 +11,7 @@ class TextChatView{
 
     public addMessage(data:any):void{
         console.log("adding message",data);
-        new TextChatMessageRenderer(data, this.$j("#textChatMessagesList"), this.$j);
+        new TextChatMessageRenderer(data, this.$j("#textMessagesContainer"), this.$j);
         this.scrollToBottom();
     }
 
@@ -19,20 +20,17 @@ class TextChatView{
     }
 
     private scrollToBottom():void {
-        var top:number = this.$j("#textChatMessagesList").scrollHeight;
-        this.$j("#textChatMessagesList").scrollTop = top;
-        console.log("top=",top);
+        this.$j("#textMessagesContainer").scrollTop(this.$j("#textMessagesContainer")[0].scrollHeight);
     }
 
     private onButtonClicked(event:any):void{
-        console.log("send button clicked");
         var message:string = this.$j("#textMessageInput").val();
         if(message == "" || message == undefined || message == null){
             console.error("empty message");
             alert("Message is empty");
         }
         else{
-            EventBus.dispatchEvent("SEND_TEXT_MESSAGE_REQUEST",message);
+            EventBus.dispatchEvent(TextChatEvent.SEND_TEXT_CHAT_MESSAGE,message);
             this.$j("#textMessageInput").val("");
         }
     }

@@ -1,7 +1,7 @@
 ///<reference path="ApplicationView.ts"/>
 ///<reference path="../user/Subscriber.ts"/>
 ///<reference path="../user/Publisher.ts"/>
-///<reference path="../service/Service.ts"/>
+///<reference path="../textChat/Service.ts"/>
 ///<reference path="../service/socket/SocketService.ts"/>
 var ApplicationModel = (function () {
     function ApplicationModel(view, userName, userRole, sessionToConnect) {
@@ -51,15 +51,16 @@ var ApplicationModel = (function () {
         }
     };
     ApplicationModel.prototype.createService = function (session) {
-        var _this = this;
         if (session === void 0) { session = null; }
-        this.service = new Service(session);
-        EventBus.addEventListener(Service.STREAM_CREATED, function (data) { return _this.onStreamCreated(data); });
-        EventBus.addEventListener(Service.STREAM_DESTROYED, function (data) { return _this.onStreamDestroyed(data); });
-        EventBus.addEventListener(Service.ON_LOG_OUT, function (response) { return _this.onLogOut(response); });
-        EventBus.addEventListener(Service.LOGIN_RESPONSE, function (data) { return _this.onLogInResponse(data); });
-        EventBus.addEventListener(Service.GET_TOKEN_RESPONSE, function (response) { return _this.getTokenResponse(response); });
-        EventBus.addEventListener(Service.REMOVE_USER_RESPONSE, function (response) { return _this.onRemoveUserResponse(response); });
+        /*
+        this.service = new TextChatService(session);
+        EventBus.addEventListener(TextChatService.STREAM_CREATED, (data)=>this.onStreamCreated(data));
+        EventBus.addEventListener(TextChatService.STREAM_DESTROYED, (data)=>this.onStreamDestroyed(data));
+        EventBus.addEventListener(TextChatService.ON_LOG_OUT,(response)=>this.onLogOut(response));
+        EventBus.addEventListener(TextChatService.LOGIN_RESPONSE,(data)=>this.onLogInResponse(data));
+        EventBus.addEventListener(TextChatService.GET_TOKEN_RESPONSE,(response)=>this.getTokenResponse(response));
+        EventBus.addEventListener(TextChatService.REMOVE_USER_RESPONSE, (response)=>this.onRemoveUserResponse(response));
+        */
     };
     ApplicationModel.prototype.onStreamCreated = function (data) {
         var session = data.session;
@@ -114,7 +115,7 @@ var ApplicationModel = (function () {
     };
     ApplicationModel.prototype.getTokenResponse = function (response) {
         this.token = response[0];
-        //EventBus.removeEventListener(Service.GET_TOKEN_RESPONSE,this.getTokenResponse(response));
+        //EventBus.removeEventListener(TextChatService.GET_TOKEN_RESPONSE,this.getTokenResponse(response));
         this.joinRequest();
     };
     ApplicationModel.prototype.createSessionName = function () {
