@@ -235,8 +235,8 @@ a:hover .demo-logo {
 #video-container video {
 	position: relative;
 	float: left;
-	width: 50%;
-	cursor: pointer;
+	/*width: 50%;
+	cursor: pointer;*/
 }
 
 #video-container div {
@@ -347,7 +347,14 @@ table i {
 .textChatMessageRenderer{
 	font-size: 1.4em;
 }
-
+video{
+	background: url("./assets/mainVideoPlaceholder.jpg");
+}
+.videoMirrored{
+	transform: rotateY(180deg);
+	-webkit-transform:rotateY(180deg); /* Safari and Chrome */
+	-moz-transform:rotateY(180deg); /* Firefox */
+}
 /* xs ans md screen resolutions*/
 
 @media screen and (max-width: 991px) {

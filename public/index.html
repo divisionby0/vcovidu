@@ -27,6 +27,7 @@
             var userName = url.searchParams.get("name");
             var userRole = url.searchParams.get("role");
             var sessionToConnect = url.searchParams.get("sessionToConnect");
+
             console.log("userName="+userName+"  userRole="+userRole+" sessionToConnect="+sessionToConnect);
             joinSession(userName, userRole, sessionToConnect);
         });
@@ -40,11 +41,6 @@
                 <div id="session-header">
                     <h1 id="session-title"></h1>
                     <input class="btn btn-large btn-danger" type="button" id="buttonLeaveSession" onmouseup="removeUser(); leaveSession()" value="Leave session">
-                </div>
-                <div id="main-video" class="col-md-6">
-                    <p class="nickName"></p>
-                    <p class="userName"></p>
-                    <video autoplay playsinline="true"></video>
                 </div>
                 <div id="video-container" class="col-md-6"></div>
             </div>
