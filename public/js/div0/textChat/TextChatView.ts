@@ -10,20 +10,33 @@ class TextChatView{
     }
 
     public addMessage(data:any):void{
-        console.log("adding message",data);
         new TextChatMessageRenderer(data, this.$j("#textMessagesContainer"), this.$j);
         this.scrollToBottom();
     }
 
     private createListener():void {
-        this.$j("#sendTextMessageButton").click((event)=>this.onButtonClicked(event));
+        this.$j("#sendTextMessageButton").click((event)=>this.onSendButtonClicked(event));
+        this.$j('#textMessageInput').on('keyup', (event)=>this.onInputKeyUp(event));
+    }
+
+    private onInputKeyUp(event):boolean{
+        if (event.keyCode === 13) {
+            this.sendMessage();
+            event.preventDefault();
+            return false;
+        }
+        return true;
     }
 
     private scrollToBottom():void {
         this.$j("#textMessagesContainer").scrollTop(this.$j("#textMessagesContainer")[0].scrollHeight);
     }
 
-    private onButtonClicked(event:any):void{
+    private onSendButtonClicked(event:any):void{
+        this.sendMessage();
+    }
+
+    private sendMessage():void{
         var message:string = this.$j("#textMessageInput").val();
         if(message == "" || message == undefined || message == null){
             console.error("empty message");

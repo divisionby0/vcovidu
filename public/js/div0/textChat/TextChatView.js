@@ -7,18 +7,29 @@ var TextChatView = (function () {
         this.createListener();
     }
     TextChatView.prototype.addMessage = function (data) {
-        console.log("adding message", data);
         new TextChatMessageRenderer(data, this.$j("#textMessagesContainer"), this.$j);
         this.scrollToBottom();
     };
     TextChatView.prototype.createListener = function () {
         var _this = this;
-        this.$j("#sendTextMessageButton").click(function (event) { return _this.onButtonClicked(event); });
+        this.$j("#sendTextMessageButton").click(function (event) { return _this.onSendButtonClicked(event); });
+        this.$j('#textMessageInput').on('keyup', function (event) { return _this.onInputKeyUp(event); });
+    };
+    TextChatView.prototype.onInputKeyUp = function (event) {
+        if (event.keyCode === 13) {
+            this.sendMessage();
+            event.preventDefault();
+            return false;
+        }
+        return true;
     };
     TextChatView.prototype.scrollToBottom = function () {
         this.$j("#textMessagesContainer").scrollTop(this.$j("#textMessagesContainer")[0].scrollHeight);
     };
-    TextChatView.prototype.onButtonClicked = function (event) {
+    TextChatView.prototype.onSendButtonClicked = function (event) {
+        this.sendMessage();
+    };
+    TextChatView.prototype.sendMessage = function () {
         var message = this.$j("#textMessageInput").val();
         if (message == "" || message == undefined || message == null) {
             console.error("empty message");
