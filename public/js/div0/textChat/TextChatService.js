@@ -29,12 +29,6 @@ var TextChatService = (function () {
         console.log("signal = " + signal);
         this.session.on(signal, function (event) {
             EventBus.dispatchEvent(TextChatEvent.ON_NEW_TEXT_CHAT_MESSAGE, { from: event.from, message: event.data });
-            /*
-            console.log("on text chat message");
-            console.log("message="+event.data); // Message
-            console.log("from=",event.from); // Connection object of the sender
-            console.log("type=",event.type); // The type of message ("my-chat")
-            */
         });
     };
     return TextChatService;

@@ -169,7 +169,7 @@ window.onbeforeunload = () => { // Gracefully leave session
         leaveSession();
     }
     logOut();
-}
+};
 
 function appendUserData(videoElement, connection) {
     var clientData;
@@ -212,7 +212,6 @@ function removeAllUserData() {
 
 function cleanMainVideo() {
     $('div[id^="remote-video-_"]').srcObject = null;
-    //$('#main-video').get(0).srcObject = null;
 }
 
 function addClickListener(videoElement, clientData, serverData) {
