@@ -17,7 +17,6 @@ function startApplication(_userName, _role, _sessionToConnect){
 
     parseConfig();
     joinSession();
-    //createSocketService();
 }
 
 function parseConfig(){
@@ -40,6 +39,13 @@ function joinSession() {
         OV = new OpenVidu();
 
         session = OV.initSession();
+        /*
+        var recordProperties = {
+            recordingMode: "ALWAYS", // RecordingMode.ALWAYS for automatic recording
+            defaultOutputMode: "COMPOSED"
+        };
+        session = OV.createSession(recordProperties);
+        */
 
         session.on('streamCreated', (event) => {
             $("#video-container").empty();
@@ -71,7 +77,7 @@ function joinSession() {
                         videoSource: undefined,
                         publishAudio: true,
                         publishVideo: true,
-                        resolution: '640x480',
+                        resolution: videoResolution,
                         frameRate: 30,
                         insertMode: 'APPEND',
                         mirror: true
@@ -90,6 +96,7 @@ function joinSession() {
                     });
 
                     session.publish(publisher);
+                    startRecording();
 
                 } else {
                     console.warn('You don\'t have permissions to publish');
@@ -110,6 +117,7 @@ function leaveSession() {
     session.disconnect();
     session = null;
     cleanSessionView();
+    stopRecording();
 }
 /* OPENVIDU METHODS */
 
@@ -140,6 +148,7 @@ function getToken(callback) {
         {sessionName: sessionToConnect, role:role},
         'Request of TOKEN gone WRONG:',
         (response) => {
+            console.log("getToken response:",response);
             token = response[0]; // Get token from response
             console.warn('Request of TOKEN gone WELL (TOKEN:' + token + ')');
             callback(token); // Continue the join operation
@@ -186,6 +195,36 @@ function httpPostRequest(url, body, errorMsg, callback) {
 
 
 /* APPLICATION BROWSER METHODS */
+function startRecording() {
+    console.log("start recording...");
+
+    var request = new HttpPostRequest('api/recording/start',{
+            session: session.sessionId,
+            outputMode: "COMPOSED",
+            hasAudio: true,
+            hasVideo: true,
+            resolution:videoResolution
+        },
+        'Start recording WRONG',
+        function(response){
+            forceRecordingId = response.id;
+            console.log("forceRecordingId=",forceRecordingId,"response=",response);
+        }
+    );
+    request.execute();
+}
+
+function stopRecording() {
+    console.log("stopRecording forceRecordingId=",forceRecordingId);
+    var request = new HttpPostRequest('api/recording/stop',{recording: forceRecordingId},
+        'Stop recording WRONG',
+        function(response){
+            console.log(response);
+        }
+    );
+    request.execute();
+}
+
 window.onbeforeunload = () => { // Gracefully leave session
     if (session) {
         removeUser();
