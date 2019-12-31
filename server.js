@@ -1,9 +1,11 @@
 /* CONFIGURATION */
-
 var OpenVidu = require('openvidu-node-client').OpenVidu;
 var Session = require('openvidu-node-client').Session;
 var OpenViduRole = require('openvidu-node-client').OpenViduRole;
 var TokenOptions = require('openvidu-node-client').TokenOptions;
+
+var ver = "0.0.5";
+console.log(ver);
 
 // Check launch arguments: must receive openvidu-server URL and the secret
 if (process.argv.length != 4) {
@@ -11,7 +13,7 @@ if (process.argv.length != 4) {
     process.exit(-1);
 }
 // For demo purposes we ignore self-signed certificate
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 // Node imports
 var express = require('express');
@@ -20,6 +22,7 @@ var session = require('express-session');
 var https = require('https');
 var bodyParser = require('body-parser'); // Pull information from HTML POST (express4)
 var app = express(); // Create our app with express
+var RecordingAPI = require('./server/api/recording/RecordingAPI');
 
 // Server configuration
 app.use(session({
@@ -30,7 +33,8 @@ app.use(session({
 app.use(express.static(__dirname + '/public')); // Set the static files location
 app.use(bodyParser.urlencoded({
     'extended': 'true'
-})); // Parse application/x-www-form-urlencoded
+}));
+// Parse application/x-www-form-urlencoded
 app.use(bodyParser.json()); // Parse application/json
 app.use(bodyParser.json({
     type: 'application/vnd.api+json'
@@ -42,6 +46,7 @@ var options = {
     cert: fs.readFileSync('openviducert.pem')
 };
 https.createServer(options, app).listen(5000);
+
 
 // Environment variable: URL where our OpenVidu server is listening
 var OPENVIDU_URL = process.argv[2];
@@ -56,8 +61,9 @@ var mapSessions = {};
 // Collection to pair session names with tokens
 var mapSessionNamesTokens = {};
 
-console.log("App listening on port 5000");
+var recordingsAPI = new RecordingAPI(app, OV);
 
+console.log("App listening on port 5000");
 /* CONFIGURATION */
 
 
@@ -110,39 +116,15 @@ app.post('/api-sessions/get-token', function (req, res) {
                 });
             })
             .catch(error => {
-                console.error(error);
+                //res.status(500).send(error);
+                console.error("Generate token error: ",error);
+                createNewSession(res, sessionName);
             });
+
     } else {
         // New session
         console.log('New session ' + sessionName);
-
-        // Create a new OpenVidu Session asynchronously
-        OV.createSession()
-            .then(session => {
-                // Store the new Session in the collection of Sessions
-                mapSessions[sessionName] = session;
-                // Store a new empty array in the collection of tokens
-                mapSessionNamesTokens[sessionName] = [];
-
-                // Generate a new token asynchronously with the recently created tokenOptions
-                session.generateToken(tokenOptions)
-                    .then(token => {
-
-                        // Store the new token in the collection of tokens
-                        mapSessionNamesTokens[sessionName].push(token);
-                        console.log("sending token ",token);
-                        // Return the Token to the client
-                        res.status(200).send({
-                            0: token
-                        });
-                    })
-                    .catch(error => {
-                        console.error(error);
-                    });
-            })
-            .catch(error => {
-                console.error(error);
-            });
+        createNewSession(res, sessionName, tokenOptions);
     }
 });
 
@@ -186,6 +168,39 @@ app.post('/api-sessions/remove-user', function (req, res) {
 
 
 /* AUXILIARY METHODS */
+function createNewSession(res, sessionName, tokenOptions){
+    console.log("creating new session "+sessionName);
+    OV.createSession()
+        .then(session => {
+            // Store the new Session in the collection of Sessions
+            mapSessions[sessionName] = session;
+            // Store a new empty array in the collection of tokens
+            mapSessionNamesTokens[sessionName] = [];
+
+            // Generate a new token asynchronously with the recently created tokenOptions
+            session.generateToken(tokenOptions)
+                .then(token => {
+
+                    // Store the new token in the collection of tokens
+                    mapSessionNamesTokens[sessionName].push(token);
+                    console.log("sending token ",token);
+                    // Return the Token to the client
+                    res.status(200).send({
+                        0: token
+                    });
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        })
+        .catch(error => {
+            res.status(500).send(error);
+            console.error("ERROR: ",error);
+        });
+}
+function login(user, pass) {
+    return (users.find(u => (u.user === user) && (u.pass === pass)));
+}
 function getBasicAuth() {
     return 'Basic ' + (new Buffer('OPENVIDUAPP:' + OPENVIDU_SECRET).toString('base64'));
 }

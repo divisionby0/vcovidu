@@ -6,13 +6,36 @@ var token;			// Token retrieved from OpenVidu Server
 var userName;
 var role;
 var sessionToConnect;
+var videoResolution;
+var socketServiceURL;
+var socketService;
 
-/* OPENVIDU METHODS */
-function joinSession(_userName, _role, _sessionToConnect) {
+function startApplication(_userName, _role, _sessionToConnect){
     userName = _userName;
     role = _role;
     sessionToConnect = _sessionToConnect;
 
+    parseConfig();
+    joinSession();
+    //createSocketService();
+}
+
+function parseConfig(){
+    videoResolution = config.resolution;
+    socketServiceURL = config.socketServiceURL;
+}
+function createSocketService(){
+    EventBus.addEventListener(SocketEvent.ON_SOCKET_CONNECTED, ()=>this.onSocketConnected());
+    socketService = new SocketService(socketServiceURL,{query:"userData="+userName});
+}
+
+function onSocketConnected(){
+    console.log("connected to socket");
+}
+
+/* OPENVIDU METHODS */
+function joinSession() {
+    console.log("join session");
     getToken((token) => {
         OV = new OpenVidu();
 

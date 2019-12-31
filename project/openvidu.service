@@ -1,0 +1,16 @@
+[Unit]
+Description=LSG openvidu service
+After=network.target
+
+[Service]
+User=root
+Group=root
+PermissionsStartOnly=true
+Type=simple
+ExecStart=/usr/bin/java -jar -Dopenvidu.secret=too6iedaiphei6Awae -Dopenvidu.recording=true -Dopenvidu.recording.path=/recorded -Dopenvidu.recording.public-access=true -Dopenvidu.streams.video.max-recv-bandwidth=4000 -Dopenvidu.streams.video.min-recv-bandwidth=3000 -Dopenvidu.streams.video.max-send-bandwidth=4000 -Dopenvidu.streams.video.min-send-bandwidth=3000  -Dopenvidu.publicurl=https://94.130.37.77:4443/ openvidu-server-2.11.0_normal.jar
+Restart=always
+RestartSec=10
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

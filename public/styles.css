@@ -1,0 +1,132 @@
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+
+}
+
+.main-content {
+    display: flex;
+    flex-direction: row;
+    margin-top: 10px;
+    width: 100%;
+    height: 100%;
+
+}
+
+.header {
+    height: 150px;
+    background-color: cornflowerblue;
+}
+
+.menu {
+    width: 15%;
+    background-color: cornflowerblue;
+    margin-right: 5px;
+}
+
+.main {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    width: 85%;
+}
+
+.video-question {
+    display: flex;
+    flex-direction: column;
+    /*background-color: cornsilk;*/
+    width: 100%;
+    padding: 5px;
+}
+
+.chat {
+    width: 700px;
+    /*background-color: moccasin;*/
+    font-size: small;
+    overflow: auto;
+}
+
+.chatperson{
+    display: block;
+    border-bottom: 1px solid #eee;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+    margin-bottom: 15px;
+    padding: 4px;
+}
+.chatperson:hover{
+    text-decoration: none;
+    border-bottom: 1px solid orange;
+}
+.namechat {
+    display: inline-block;
+    vertical-align: middle;
+}
+.chatperson .chatimg img{
+    width: 40px;
+    height: 40px;
+    background-image: url('http://i.imgur.com/JqEuJ6t.png');
+}
+.chatperson .pname{
+    font-size: 18px;
+    padding-left: 5px;
+}
+.chatperson .lastmsg{
+    font-size: 12px;
+    padding-left: 5px;
+    color: #ccc;
+}
+
+textarea {
+    width: 100%;
+    box-sizing: border-box;
+    resize: none;
+}
+
+.video {
+    background-color: #000;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 5px;
+}
+
+.question-list {
+    margin-top: 15px;
+}
+
+h3 {
+    text-align: center;
+    color: dodgerblue;
+
+}
+
+.crowd-list {
+    border: 1px solid #ccc;
+    margin: 10px;
+}
+
+.crowd-list:hover {
+    box-shadow: 0px 5px 15px 0px rgba(0, 0, 0, 0.5);
+    transition: box-shadow 0.2s ease-in-out;
+    transition-property: box-shadow;
+    transition-duration: 0.2s;
+    transition-timing-function: ease-in-out;
+    transition-delay: 0s;
+}
+
+.kill-radius-right {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.kill-radius-left {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+video{
+    height: 100%;
+}

@@ -1,6 +1,8 @@
 "use strict";
 var RecordingAPI = (function () {
     function RecordingAPI(app, OV) {
+        this.ver = "0.0.1";
+        console.log("Recoirding API ver=", this.ver);
         this.app = app;
         this.OV = OV;
         this.createRoutes();

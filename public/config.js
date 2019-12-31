@@ -1,1 +1,1 @@
-var config = {resolution:"1024x768", socketServiceURL:"https://94.130.37.77:4433"};
+var config = {resolution:"1024x768",  socketServiceURL:"https://stream.lsghub.com:4433"};

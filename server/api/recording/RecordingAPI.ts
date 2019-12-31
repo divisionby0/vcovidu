@@ -1,8 +1,10 @@
 class RecordingAPI{
     private app:any;
     private OV:any;
+    private ver:string = "0.0.1";
 
     constructor(app:any, OV:any){
+        console.log("Recoirding API ver=",this.ver);
         this.app = app;
         this.OV = OV;
         this.createRoutes();

@@ -1,23 +1,22 @@
-<html>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>openvidu-js-node</title>
-
-    <meta name="viewport" content="width=device-width, initial-scale=1" charset="utf-8">
-    <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
-
-    <!-- Bootstrap -->
+    <meta charset="UTF-8">
+    <title>Title</title>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link href="https://use.fontawesome.com/releases/v5.12.0/css/all.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css"/>
 
-    <link rel="styleSheet" href="style.css" type="text/css" media="screen">
     <script src="openvidu-browser-2.11.0.js"></script>
+    <script type="application/javascript" src="js/lib/socket.io.js"></script>
 
+    <script type="application/javascript" src="config.js"></script>
     <script src="js/lib/collections/collections.js"></script>
     <script src="js/lib/events/EventBus.js"></script>
+
+    <script src="js/div0/service/socket/SocketEvent.js"></script>
+    <script src="js/div0/service/socket/SocketService.js"></script>
 
     <script src="js/div0/textChat/TextChatEvent.js"></script>
     <script src="js/div0/textChat/TextChatService.js"></script>
@@ -29,10 +28,6 @@
     <script src="testApp.js"></script>
     <script>
         $(document).ready(function () {
-            $('[data-toggle="tooltip"]').tooltip({
-                html: true
-            });
-
             var currentUrl = window.location.href;
             var url = new URL(currentUrl);
             var userName = url.searchParams.get("name");
@@ -40,34 +35,42 @@
             var sessionToConnect = url.searchParams.get("sessionToConnect");
 
             console.log("userName="+userName+"  userRole="+userRole+" sessionToConnect="+sessionToConnect);
-            joinSession(userName, userRole, sessionToConnect);
+            startApplication(userName, userRole, sessionToConnect);
         });
     </script>
 </head>
-
 <body>
-    <div id="main-container" class="container">
-        <div id="logged">
-            <div id="session">
-                <div id="session-header">
-                    <h1 id="session-title"></h1>
-                    <input class="btn btn-large btn-danger" type="button" id="buttonLeaveSession" onmouseup="removeUser(); leaveSession()" value="Leave session">
+    <div class="header">Header</div>
+    <div class="main-content">
+        <div class="menu">Menu</div>
+        <div class="main">
+            <div class="video-question crowd-list" style="margin: 10px">
+                <h3>Название стрима</h3>
+                <div class="video">
+                    <div id="video-container" style="height: 383px;"></div>
                 </div>
-                <div id="video-container" class="col-md-6"></div>
-            </div>
-            <div style="width: 100%; display: block; float: left;">
-                <div id="textMessagesContainer" style="width: 100%; height: 240px; display: block; float: left; overflow-y: scroll; overflow-x:hidden; background-color: yellow;">
 
+                <div class="row">
+                    <div class="col-9">
+                        <input id="textMessageInput" type="text" placeholder="Написать сообщение в чат..." class="form-control kill-radius-right" />
+                    </div>
+                    <div class="col-3">
+                        <button id="sendTextMessageButton" class="btn btn-info btn-block kill-radius-left">Отправить</button>
+                    </div>
                 </div>
-                <div style="display: block;float: left; width: 80%;">
-                    <input id="textMessageInput" class="form-control" type="text" width="100%">
-                </div>
-                <div style="display: block;float: left; width: 20%;">
-                    <button id="sendTextMessageButton" type="button" class="btn btn-primary">Send</button>
+            </div>
+            <div class="chat crowd-list" style="height: 100%">
+                <div class="container-fluid" style="height: 100%">
+                    <div class="row" style="height: 100%">
+                        <div class="col-12" style="display:flex; flex-direction: column; position: sticky">
+                            <div class="chatbody" style="flex: 1">
+                                <table id="textMessagesContainer" class="table" style="overflow-y: scroll; overflow-x:hidden;"></table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </body>
-
 </html>

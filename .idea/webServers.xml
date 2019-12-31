@@ -10,6 +10,14 @@
           <option name="port" value="22" />
         </fileTransfer>
       </webServer>
+      <webServer id="7b592831-c5fd-46a3-8de4-3ebb188046e8" name="divby0" url="http://45.88.78.34">
+        <fileTransfer host="45.88.78.34" port="22" rootFolder="/var/www/html/openvidu" accessType="SFTP" username="root">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
     </option>
   </component>
 </project>
