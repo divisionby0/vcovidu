@@ -4,7 +4,7 @@ var Session = require('openvidu-node-client').Session;
 var OpenViduRole = require('openvidu-node-client').OpenViduRole;
 var TokenOptions = require('openvidu-node-client').TokenOptions;
 
-var ver = "0.0.5";
+var ver = "0.0.7";
 console.log(ver);
 
 // Check launch arguments: must receive openvidu-server URL and the secret
@@ -24,6 +24,13 @@ var bodyParser = require('body-parser'); // Pull information from HTML POST (exp
 var app = express(); // Create our app with express
 var RecordingAPI = require('./server/api/recording/RecordingAPI');
 
+var Map = require('./server/collections/Map');
+var MapIterator = require('./server/collections/iterators/MapIterator');
+var Room = require('./server/room/Room');
+
+var SocketServer = require('./server/socketServer/SocketServer');
+
+
 // Server configuration
 app.use(session({
     saveUninitialized: true,
@@ -41,12 +48,13 @@ app.use(bodyParser.json({
 })); // Parse application/vnd.api+json as json
 
 // Listen (start app with node server.js)
+
 var options = {
     key: fs.readFileSync('openvidukey.pem'),
     cert: fs.readFileSync('openviducert.pem')
 };
-https.createServer(options, app).listen(5000);
 
+https.createServer(options, app).listen(5000);
 
 // Environment variable: URL where our OpenVidu server is listening
 var OPENVIDU_URL = process.argv[2];
@@ -58,14 +66,16 @@ var OV = new OpenVidu(OPENVIDU_URL, OPENVIDU_SECRET);
 
 // Collection to pair session names with OpenVidu Session objects
 var mapSessions = {};
-// Collection to pair session names with tokens
 var mapSessionNamesTokens = {};
 
 var recordingsAPI = new RecordingAPI(app, OV);
 
+var rooms = new Map("rooms");
+
+var socketServer = new SocketServer(__dirname);
+
 console.log("App listening on port 5000");
 /* CONFIGURATION */
-
 
 
 /* REST API */
@@ -80,6 +90,7 @@ app.post('/api-login/logout', function (req, res) {
 app.post('/api-sessions/get-token', function (req, res) {
     // The video-call to connect
     var sessionName = req.body.sessionName;
+    var roomName = req.body.roomName;
 
     // Role associated to this user
     var role = req.body.role;
@@ -118,13 +129,18 @@ app.post('/api-sessions/get-token', function (req, res) {
             .catch(error => {
                 //res.status(500).send(error);
                 console.error("Generate token error: ",error);
-                createNewSession(res, sessionName);
+                createNewSession(res, sessionName, roomName);
             });
 
     } else {
         // New session
-        console.log('New session ' + sessionName);
-        createNewSession(res, sessionName, tokenOptions);
+        if(role=="PUBLISHER"){
+            console.log('New session ' + sessionName);
+            createNewSession(res, sessionName, roomName, tokenOptions);
+        }
+        else{
+            onRoleCannotCreateSessionError(res);
+        }
     }
 });
 
@@ -134,6 +150,9 @@ app.post('/api-sessions/remove-user', function (req, res) {
     var sessionName = req.body.sessionName;
     var token = req.body.token;
     console.log('Removing user | {sessionName, token}={' + sessionName + ', ' + token + '}');
+
+    rooms.remove(sessionName);
+    console.log("total rooms:"+rooms.size());
 
     // If the session exists
     if (mapSessions[sessionName] && mapSessionNamesTokens[sessionName]) {
@@ -168,10 +187,20 @@ app.post('/api-sessions/remove-user', function (req, res) {
 
 
 /* AUXILIARY METHODS */
-function createNewSession(res, sessionName, tokenOptions){
+function createNewSession(res, sessionName, roomName, tokenOptions){
     console.log("creating new session "+sessionName);
     OV.createSession()
         .then(session => {
+            var newRoom = new Room(roomName, sessionName);
+            try{
+                rooms.add(sessionName, newRoom);
+                console.log("total rooms:",rooms.size());
+            }
+            catch(error){
+                res.status(500).send(JSON.stringify({errorCode:1, text:error}));
+                return;
+            }
+
             // Store the new Session in the collection of Sessions
             mapSessions[sessionName] = session;
             // Store a new empty array in the collection of tokens
@@ -203,4 +232,8 @@ function login(user, pass) {
 }
 function getBasicAuth() {
     return 'Basic ' + (new Buffer('OPENVIDUAPP:' + OPENVIDU_SECRET).toString('base64'));
+}
+function onRoleCannotCreateSessionError(res){
+    console.log("onRoleCannotCreateSessionError");
+    res.status(500).send(JSON.stringify({errorCode:7, text:"Subscribers cannot create session"}));
 }

@@ -1,7 +1,7 @@
 "use strict";
 var EventBus = require("../events/EventBus");
 var SocketServer = (function () {
-    function SocketServer(fs, currentDir) {
+    function SocketServer(currentDir) {
         var _this = this;
         this.ver = "0.1.1";
         this.port = 4433;

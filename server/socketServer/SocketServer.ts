@@ -10,7 +10,7 @@ class SocketServer{
     private io:any;
     private socket:any;
 
-    constructor(fs:any, currentDir:string){
+    constructor(currentDir:string){
         console.log("Socket server init "+this.ver);
         var fs = require('fs');
         var https = require('https');

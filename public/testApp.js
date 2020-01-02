@@ -6,14 +6,19 @@ var token;			// Token retrieved from OpenVidu Server
 var userName;
 var role;
 var sessionToConnect;
+var roomName;
 var videoResolution;
 var socketServiceURL;
 var socketService;
 
-function startApplication(_userName, _role, _sessionToConnect){
+var ver = "0.0.1";
+
+function startApplication(_userName, _role, _sessionToConnect, _roomName){
+    log(ver);
     userName = _userName;
     role = _role;
     sessionToConnect = _sessionToConnect;
+    roomName = _roomName;
 
     parseConfig();
     joinSession();
@@ -39,13 +44,6 @@ function joinSession() {
         OV = new OpenVidu();
 
         session = OV.initSession();
-        /*
-        var recordProperties = {
-            recordingMode: "ALWAYS", // RecordingMode.ALWAYS for automatic recording
-            defaultOutputMode: "COMPOSED"
-        };
-        session = OV.createSession(recordProperties);
-        */
 
         session.on('streamCreated', (event) => {
             $("#video-container").empty();
@@ -100,15 +98,21 @@ function joinSession() {
 
                 } else {
                     console.warn('You don\'t have permissions to publish');
+                    log("You don\'t have permissions to publish");
                     initMainVideoThumbnail(); // Show SUBSCRIBER message in main video
                 }
             })
             .catch(error => {
+                log("There was an error connecting to the session: code="+error.code+"  message="+error.message);
                 console.warn('There was an error connecting to the session:', error.code, error.message);
             });
 
         createTextChat(session);
-    });
+    },(error)=>{
+        onGetTokenError(error);
+        log("getTokenError "+error);
+        //console.log("getToken error: ",error);
+        });
 
     return false;
 }
@@ -142,16 +146,19 @@ function logOut() {
     );
 }
 
-function getToken(callback) {
+function getToken(callback, errorCallback) {
     httpPostRequest(
         'api-sessions/get-token',
-        {sessionName: sessionToConnect, role:role},
+        {sessionName: sessionToConnect, role:role, roomName:roomName},
         'Request of TOKEN gone WRONG:',
         (response) => {
             console.log("getToken response:",response);
             token = response[0]; // Get token from response
             console.warn('Request of TOKEN gone WELL (TOKEN:' + token + ')');
             callback(token); // Continue the join operation
+        },
+        (error)=>{
+            errorCallback(error)
         }
     );
 }
@@ -167,7 +174,7 @@ function removeUser() {
     );
 }
 
-function httpPostRequest(url, body, errorMsg, callback) {
+function httpPostRequest(url, body, errorMsg, callback, errorCallback) {
     var http = new XMLHttpRequest();
     http.open('POST', url, true);
     http.setRequestHeader('Content-type', 'application/json');
@@ -185,6 +192,7 @@ function httpPostRequest(url, body, errorMsg, callback) {
             } else {
                 console.warn(errorMsg);
                 console.warn(http.responseText);
+                errorCallback(http.responseText);
             }
         }
     }
@@ -298,5 +306,16 @@ function cleanSessionView() {
     cleanMainVideo();
     $('#main-video video').css("background", "");
 }
+function onGetTokenError(error){
+    console.log("Error: ",error);
+    var errorData = JSON.parse(error);
+    alert(errorData.text);
+}
 
+function log(message){
+    var messageItem = $("<span style='width:100%; float: left; display: block;'>"+message+"</span>");
+    var logContainer = $("#logContainer");
+    messageItem.appendTo(logContainer);
+
+}
 /* APPLICATION BROWSER METHODS */
