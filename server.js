@@ -4,7 +4,7 @@ var Session = require('openvidu-node-client').Session;
 var OpenViduRole = require('openvidu-node-client').OpenViduRole;
 var TokenOptions = require('openvidu-node-client').TokenOptions;
 
-var ver = "0.0.7";
+var ver = "0.0.8";
 console.log(ver);
 
 // Check launch arguments: must receive openvidu-server URL and the secret
@@ -24,12 +24,10 @@ var bodyParser = require('body-parser'); // Pull information from HTML POST (exp
 var app = express(); // Create our app with express
 var RecordingAPI = require('./server/api/recording/RecordingAPI');
 
+var EventBus = require('./server/events/EventBus');
 var Map = require('./server/collections/Map');
 var MapIterator = require('./server/collections/iterators/MapIterator');
 var Room = require('./server/room/Room');
-
-var SocketServer = require('./server/socketServer/SocketServer');
-
 
 // Server configuration
 app.use(session({
@@ -72,7 +70,17 @@ var recordingsAPI = new RecordingAPI(app, OV);
 
 var rooms = new Map("rooms");
 
-var socketServer = new SocketServer(__dirname);
+EventBus.addEventListener(Room.ON_PUBLISHER_CONNECTION_LOST, (sessionName)=>{
+    console.log("OnPublisher connection lost sessionName="+sessionName);
+    if(rooms.has(sessionName)){
+        rooms.remove(sessionName);
+        console.log("room destroyed");
+    }
+    else{
+        console.log("could not find room by sessionName "+sessionName);
+    }
+});
+
 
 console.log("App listening on port 5000");
 /* CONFIGURATION */
@@ -87,16 +95,32 @@ app.post('/api-login/logout', function (req, res) {
 });
 
 // Get token (add new user to session)
+app.post('/api-sessions/ping', function (req, res) {
+    var sessionName = req.body.sessionName;
+    var role = req.body.role;
+
+    if(role=="PUBLISHER"){
+        //console.log("on publisher ping sessionName="+sessionName);
+        var room = rooms.get(sessionName);
+
+        if(room!=undefined && room !=null){
+            room.ping();
+        }
+        else{
+            console.log("room to ping not found");
+        }
+        res.status(200).send();
+    }
+});
+
+// Get token (add new user to session)
 app.post('/api-sessions/get-token', function (req, res) {
     // The video-call to connect
     var sessionName = req.body.sessionName;
     var roomName = req.body.roomName;
 
-    // Role associated to this user
     var role = req.body.role;
 
-    // Optional data to be passed to other users when this user connects to the video-call
-    // In this case, a JSON with the value we stored in the req.session object on login
     var serverData = JSON.stringify({ serverData: req.session.loggedUser });
 
     console.log("Getting a token | {sessionName}={" + sessionName + "}");
@@ -107,39 +131,23 @@ app.post('/api-sessions/get-token', function (req, res) {
         role: role
     };
 
-    if (mapSessions[sessionName]) {
-        // Session already exists
-        console.log('Existing session ' + sessionName);
-
-        // Get the existing Session from the collection
-        var mySession = mapSessions[sessionName];
-
-        // Generate a new token asynchronously with the recently created tokenOptions
-        mySession.generateToken(tokenOptions)
-            .then(token => {
-
-                // Store the new token in the collection of tokens
-                mapSessionNamesTokens[sessionName].push(token);
-                console.log("sending token ",token);
-                // Return the token to the client
-                res.status(200).send({
-                    0: token
-                });
-            })
-            .catch(error => {
-                //res.status(500).send(error);
-                console.error("Generate token error: ",error);
-                createNewSession(res, sessionName, roomName);
-            });
-
-    } else {
-        // New session
-        if(role=="PUBLISHER"){
-            console.log('New session ' + sessionName);
-            createNewSession(res, sessionName, roomName, tokenOptions);
+    var roomExists = rooms.has(sessionName);
+    var room;
+    if(!roomExists){
+        if(role == "PUBLISHER"){
+            createNewSession(sessionName, roomName, tokenOptions, res);
         }
         else{
             onRoleCannotCreateSessionError(res);
+        }
+    }
+    else{
+        room = rooms.get(sessionName);
+        if(role=="SUBSCRIBER"){
+            room.addParticipant(sessionName, tokenOptions, res);
+        }
+        else{
+            console.log("reEnter by publisher");
         }
     }
 });
@@ -149,11 +157,20 @@ app.post('/api-sessions/remove-user', function (req, res) {
     // Retrieve params from POST body
     var sessionName = req.body.sessionName;
     var token = req.body.token;
-    console.log('Removing user | {sessionName, token}={' + sessionName + ', ' + token + '}');
 
-    rooms.remove(sessionName);
-    console.log("total rooms:"+rooms.size());
+    console.log('\nRemoving user | {sessionName, token}={' + sessionName + ', ' + token + '}');
 
+    var room = rooms.get(sessionName);
+    if(room!=undefined && room!=null){
+        room.removeParticipant(sessionName, token,res);
+    }
+    else{
+        console.log("room not found");
+    }
+    //rooms.remove(sessionName);
+    //console.log("total rooms:"+rooms.size());
+
+    /*
     // If the session exists
     if (mapSessions[sessionName] && mapSessionNamesTokens[sessionName]) {
         var tokens = mapSessionNamesTokens[sessionName];
@@ -180,6 +197,7 @@ app.post('/api-sessions/remove-user', function (req, res) {
         console.log(msg);
         res.status(500).send(msg);
     }
+    */
 });
 
 /* REST API */
@@ -187,11 +205,12 @@ app.post('/api-sessions/remove-user', function (req, res) {
 
 
 /* AUXILIARY METHODS */
-function createNewSession(res, sessionName, roomName, tokenOptions){
+function createNewSession(sessionName, roomName, tokenOptions, res){
     console.log("creating new session "+sessionName);
     OV.createSession()
         .then(session => {
-            var newRoom = new Room(roomName, sessionName);
+            var newRoom = new Room(roomName, sessionName, session, tokenOptions, res);
+
             try{
                 rooms.add(sessionName, newRoom);
                 console.log("total rooms:",rooms.size());
@@ -200,27 +219,6 @@ function createNewSession(res, sessionName, roomName, tokenOptions){
                 res.status(500).send(JSON.stringify({errorCode:1, text:error}));
                 return;
             }
-
-            // Store the new Session in the collection of Sessions
-            mapSessions[sessionName] = session;
-            // Store a new empty array in the collection of tokens
-            mapSessionNamesTokens[sessionName] = [];
-
-            // Generate a new token asynchronously with the recently created tokenOptions
-            session.generateToken(tokenOptions)
-                .then(token => {
-
-                    // Store the new token in the collection of tokens
-                    mapSessionNamesTokens[sessionName].push(token);
-                    console.log("sending token ",token);
-                    // Return the Token to the client
-                    res.status(200).send({
-                        0: token
-                    });
-                })
-                .catch(error => {
-                    console.error(error);
-                });
         })
         .catch(error => {
             res.status(500).send(error);

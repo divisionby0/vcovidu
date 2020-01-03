@@ -14,9 +14,8 @@ var SocketServer = (function () {
             key: fs.readFileSync(currentDir + '/openvidukey.pem'),
             cert: fs.readFileSync(currentDir + '/openviducert.pem')
         };
-        //var serverPort = 443;
         var server = https.createServer(options, app);
-        this.io = require('socket.io')(server);
+        this.io = require('socket.io')(server, { origins: '*:*' });
         server.listen(this.port, function () { return _this.connectionListener(); });
         this.createListener();
     }

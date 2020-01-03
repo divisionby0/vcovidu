@@ -21,6 +21,7 @@ function startApplication(_userName, _role, _sessionToConnect, _roomName){
     roomName = _roomName;
 
     parseConfig();
+    //createSocketService();
     joinSession();
 }
 
@@ -28,7 +29,15 @@ function parseConfig(){
     videoResolution = config.resolution;
     socketServiceURL = config.socketServiceURL;
 }
+
 function createSocketService(){
+    /*
+    var socket = require('socket.io-client')(socketServiceURL, {secure: true, rejectUnauthorized: false});
+    socket.on('connect', function () {
+        console.log("connected to socket server");
+    });
+    */
+
     EventBus.addEventListener(SocketEvent.ON_SOCKET_CONNECTED, ()=>this.onSocketConnected());
     socketService = new SocketService(socketServiceURL,{query:"userData="+userName});
 }
@@ -56,8 +65,9 @@ function joinSession() {
         });
 
         session.on('streamDestroyed', (event) => {
-            console.log("STREAM DESTROYED");
+            alert("STREAM DESTROYED");
             removeUserData(event.stream.connection);
+
         });
 
         var nickName = userName;
@@ -95,7 +105,7 @@ function joinSession() {
 
                     session.publish(publisher);
                     startRecording();
-
+                    startPublisherPingTimer();
                 } else {
                     console.warn('You don\'t have permissions to publish');
                     log("You don\'t have permissions to publish");
@@ -115,6 +125,22 @@ function joinSession() {
         });
 
     return false;
+}
+
+function startPublisherPingTimer(){
+    console.log("startPublisherPingTimer");
+    setInterval(sendPingPublisher, 2000);
+}
+
+function sendPingPublisher(){
+    httpPostRequest(
+        'api-sessions/ping',
+        {sessionName:sessionToConnect, role:role},
+        'Send pong wrong',
+        (response) => {
+
+        }
+    );
 }
 
 function leaveSession() {
@@ -137,7 +163,7 @@ var createTextChat = function (session) {
 function logOut() {
     httpPostRequest(
         'api-login/logout',
-        {},
+        {loggedUser:sessionToConnect},
         'Logout WRONG',
         (response) => {
             $("#not-logged").show();
@@ -166,7 +192,7 @@ function getToken(callback, errorCallback) {
 function removeUser() {
     httpPostRequest(
         'api-sessions/remove-user',
-        {sessionName: sessionName, token: token},
+        {sessionName: sessionToConnect, token: token},
         'User couldn\'t be removed from session',
         (response) => {
             console.warn("You have been removed from session " + sessionName);

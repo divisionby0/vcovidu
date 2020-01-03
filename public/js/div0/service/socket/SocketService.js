@@ -7,6 +7,7 @@ var SocketService = (function () {
     }
     SocketService.prototype.connect = function () {
         this.socket = io.connect(this.url, this.userData);
+        //this.socket = io(this.url, {secure: false, rejectUnauthorized: false});
         console.log("socket server url=" + this.url);
         this.socket.on('socketMessage', function (message) {
             console.log("on socketMessage msg=", message);

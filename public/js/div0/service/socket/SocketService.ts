@@ -1,5 +1,6 @@
 ///<reference path="SocketEvent.ts"/>
 declare var io:any;
+declare function require(name:string);
 class SocketService {
     private url:string;
     private socket:any;
@@ -14,6 +15,7 @@ class SocketService {
 
     public connect():void {
         this.socket = io.connect(this.url, this.userData);
+        //this.socket = io(this.url, {secure: false, rejectUnauthorized: false});
 
         console.log("socket server url="+this.url);
 

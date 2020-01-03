@@ -1,7 +1,6 @@
 ///<reference path="ApplicationView.ts"/>
 ///<reference path="../user/Subscriber.ts"/>
 ///<reference path="../user/Publisher.ts"/>
-///<reference path="../textChat/Service.ts"/>
 ///<reference path="../service/socket/SocketService.ts"/>
 var ApplicationModel = (function () {
     function ApplicationModel(view, userName, userRole, sessionToConnect) {
