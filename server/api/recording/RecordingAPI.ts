@@ -1,3 +1,5 @@
+import EventBus = require("../../events/EventBus");
+declare var __dirname:string;
 class RecordingAPI{
     private app:any;
     private OV:any;
@@ -14,11 +16,11 @@ class RecordingAPI{
         this.app.post('/api/recording/start', (req, res)=>this.onStartRequest(req, res));
         this.app.post('/api/recording/stop', (req, res)=>this.onStopRequest(req, res));
         this.app.post('/api/recording/delete', (req, res)=>this.onDeleteRequest(req, res));
-        this.app.post('/api/recording/get/:recordingId', (req, res)=>this.onGetRequest(req, res));
+        //this.app.post('/api/recording/get/:recordingId', (req, res)=>this.onGetRequest(req, res));
         this.app.post('/api/recording/list', (req, res)=>this.onListRequest(req, res));
     }
 
-    private onStopRequest(req:any, res:any):void{
+    public onStopRequest(req:any, res:any):void{
         var recordingId = req.body.recording;
         console.log("Stopping recording | {recordingId}=" + recordingId);
 
@@ -28,6 +30,7 @@ class RecordingAPI{
     }
 
     private onStartRequest(req:any, res:any):void {
+        var sessionName = req.body.sessionName;
         var recordingProperties = {
             outputMode: req.body.outputMode,
             hasAudio: req.body.hasAudio,
@@ -35,12 +38,17 @@ class RecordingAPI{
             resolution:"1024x768"
         };
         var sessionId = req.body.session;
-        console.log("Starting recording | {sessionId}=" + sessionId);
-
+        //console.log("Starting recording sessionId=" , sessionId,"sessionName=",sessionName,"  recordingProperties=",recordingProperties);
 
         this.OV.startRecording(sessionId, recordingProperties)
-            .then(recording => res.status(200).send(recording))
+            .then((recording)=>this.onRecordingStarted(res, recording, sessionName))
             .catch(error => res.status(400).send(error.message));
+    }
+
+    private onRecordingStarted(res:any, recording:any, sessionName:string):void{
+        //console.log("record started recording=",recording, "sessionName=",sessionName);
+        EventBus.dispatchEvent("RECORDING_STARTED", {recording:recording, sessionName:sessionName});
+        res.status(200).send(recording);
     }
 
     private onDeleteRequest(req:any, res:any):void{
@@ -54,7 +62,7 @@ class RecordingAPI{
 
     private onGetRequest(req:any, res:any):void{
         var recordingId = req.params.recordingId;
-        console.log("Getting recording | {recordingId}=" + recordingId);
+        console.log("\nGetting recording | {recordingId}=" + recordingId);
 
         this.OV.getRecording(recordingId)
             .then(recording => res.status(200).send(recording))

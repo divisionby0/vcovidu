@@ -10,6 +10,7 @@ var roomName;
 var videoResolution;
 var socketServiceURL;
 var socketService;
+var currentRecording;
 
 var ver = "0.0.1";
 
@@ -21,7 +22,6 @@ function startApplication(_userName, _role, _sessionToConnect, _roomName){
     roomName = _roomName;
 
     parseConfig();
-    //createSocketService();
     joinSession();
 }
 
@@ -30,17 +30,6 @@ function parseConfig(){
     socketServiceURL = config.socketServiceURL;
 }
 
-function createSocketService(){
-    /*
-    var socket = require('socket.io-client')(socketServiceURL, {secure: true, rejectUnauthorized: false});
-    socket.on('connect', function () {
-        console.log("connected to socket server");
-    });
-    */
-
-    EventBus.addEventListener(SocketEvent.ON_SOCKET_CONNECTED, ()=>this.onSocketConnected());
-    socketService = new SocketService(socketServiceURL,{query:"userData="+userName});
-}
 
 function onSocketConnected(){
     console.log("connected to socket");
@@ -49,8 +38,14 @@ function onSocketConnected(){
 /* OPENVIDU METHODS */
 function joinSession() {
     console.log("join session");
-    getToken((token) => {
+    getToken((data) => {
         OV = new OpenVidu();
+
+        var token = data.token;
+        currentRecording = data.recording;
+
+        //console.log("token=",token);
+        //console.log("recording=",recording);
 
         session = OV.initSession();
 
@@ -65,9 +60,9 @@ function joinSession() {
         });
 
         session.on('streamDestroyed', (event) => {
-            alert("STREAM DESTROYED");
+            //alert("STREAM DESTROYED");
             removeUserData(event.stream.connection);
-
+            onStreamDestroyed(event.stream);
         });
 
         var nickName = userName;
@@ -105,7 +100,6 @@ function joinSession() {
 
                     session.publish(publisher);
                     startRecording();
-                    startPublisherPingTimer();
                 } else {
                     console.warn('You don\'t have permissions to publish');
                     log("You don\'t have permissions to publish");
@@ -118,6 +112,8 @@ function joinSession() {
             });
 
         createTextChat(session);
+        getRecordingsList();
+
     },(error)=>{
         onGetTokenError(error);
         log("getTokenError "+error);
@@ -127,21 +123,36 @@ function joinSession() {
     return false;
 }
 
-function startPublisherPingTimer(){
-    console.log("startPublisherPingTimer");
-    setInterval(sendPingPublisher, 2000);
+function onStreamDestroyed(stream){
+    console.log("onStreamDestroyed stream=",stream," role="+role);
+    if(role == "SUBSCRIBER"){
+        $("#videoPart").hide();
+        $("#chatEndedPart").show();
+
+        var currentSessionId = stream.session.sessionId;
+        console.log("currentSessionId="+currentSessionId);
+        onPublisherStreamDestroyed(currentSessionId)
+    }
+    /*
+    console.log("currentRecording=",currentRecording);
+    var recordingId = currentRecording.id;
+    console.log("recordingId="+recordingId);
+    getRecording();
+    */
 }
 
-function sendPingPublisher(){
+function onPublisherStreamDestroyed(sessionId){
     httpPostRequest(
-        'api-sessions/ping',
-        {sessionName:sessionToConnect, role:role},
-        'Send pong wrong',
+        '/api-sessions/session-closed',
+        {recording:sessionId},
+        'onStreamDestroyed WRONG',
         (response) => {
-
+            console.log("onStreamDestroyed response=",response);
+            getRecording();
         }
     );
 }
+
 
 function leaveSession() {
     session.disconnect();
@@ -180,8 +191,9 @@ function getToken(callback, errorCallback) {
         (response) => {
             console.log("getToken response:",response);
             token = response[0]; // Get token from response
+            recording = response[1]; // Get token from response
             console.warn('Request of TOKEN gone WELL (TOKEN:' + token + ')');
-            callback(token); // Continue the join operation
+            callback({token:token, recording:recording}); // Continue the join operation
         },
         (error)=>{
             errorCallback(error)
@@ -227,17 +239,39 @@ function httpPostRequest(url, body, errorMsg, callback, errorCallback) {
 /* APPLICATION REST METHODS */
 
 
-
 /* APPLICATION BROWSER METHODS */
+function getRecordingsList(){
+    console.log("getRecordingsList()");
+    var request = new HttpPostRequest('/api/recording/list',{},
+        'Get recordings list WRONG',
+        function(response){
+            console.log("get recordings list response=",response);
+        }
+    );
+    request.execute();
+}
+function getRecording(){
+    var recordingId = currentRecording.id;
+    console.log("getting recording by "+recordingId);
+    var request = new HttpPostRequest('/api/recording/get/'+recordingId,{sessionName:sessionToConnect},
+        'Get recording WRONG',
+        function(response){
+            console.log("get recording response=",response);
+            onRecordedFileURLReady(response.data);
+        }
+    );
+    request.execute();
+}
 function startRecording() {
-    console.log("start recording...");
+    console.log("start recording... sessionName="+sessionToConnect);
 
     var request = new HttpPostRequest('api/recording/start',{
             session: session.sessionId,
             outputMode: "COMPOSED",
             hasAudio: true,
             hasVideo: true,
-            resolution:videoResolution
+            resolution:videoResolution,
+            sessionName:sessionToConnect
         },
         'Start recording WRONG',
         function(response){
@@ -259,7 +293,14 @@ function stopRecording() {
     request.execute();
 }
 
+function onRecordedFileURLReady(url){
+    console.log("url=",url);
+    var urlContainer = $("<a href='"+url+"' style='display: block; float: left; width: 100%;'>Скачать</a>");
+    urlContainer.appendTo($("#chatEndedPart"));
+}
+
 window.onbeforeunload = () => { // Gracefully leave session
+    stopRecording();
     if (session) {
         removeUser();
         leaveSession();
